@@ -6,6 +6,12 @@ A Claude Code usage debugger written in Rust. Parses your local session data, id
 
 ## Example Output
 
+![ccwhy output](docs/assets/screenshot-top.png)
+![ccwhy output](docs/assets/screenshot-bottom.png)
+
+<details>
+<summary>Text version</summary>
+
 ```
   ccwhy — Claude Code Usage Debugger
   Why did your tokens burn? What to do about it.
@@ -39,6 +45,7 @@ A Claude Code usage debugger written in Rust. Parses your local session data, id
   1. 86 session(s) exceeded 30 turns. Use /compact to reduce context buildup.
   2. 840 subagent calls. Each duplicates full context. Use Grep/Glob directly.
 ```
+</details>
 
 ## Install
 
