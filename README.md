@@ -86,6 +86,10 @@ cargo build --release
 ./target/release/ccwhy
 ```
 
+### Claude Code Skill (via ClawHub)
+
+Also available as a Claude Code skill: [Claude Usage Analyzer on ClawHub](https://clawhub.ai/singggggyee/claude-usage-analyzer)
+
 ## Usage
 
 ```bash
