@@ -49,11 +49,35 @@ A Claude Code usage debugger written in Rust. Parses your local session data, id
 
 ## Install
 
+### Homebrew (macOS)
+
 ```bash
-cargo install --git https://github.com/SingggggYee/ccwhy
+brew install SingggggYee/tap/ccwhy
 ```
 
-Or build from source:
+### Cargo (any platform with Rust)
+
+```bash
+cargo install ccwhy
+```
+
+### Download binary (no Rust needed)
+
+Grab the latest release from [Releases](https://github.com/SingggggYee/ccwhy/releases):
+
+```bash
+# macOS Apple Silicon
+curl -L https://github.com/SingggggYee/ccwhy/releases/latest/download/ccwhy-macos-aarch64.tar.gz | tar xz
+./ccwhy
+
+# macOS Intel
+curl -L https://github.com/SingggggYee/ccwhy/releases/latest/download/ccwhy-macos-x86_64.tar.gz | tar xz
+
+# Linux x86_64
+curl -L https://github.com/SingggggYee/ccwhy/releases/latest/download/ccwhy-linux-x86_64.tar.gz | tar xz
+```
+
+### Build from source
 
 ```bash
 git clone https://github.com/SingggggYee/ccwhy
