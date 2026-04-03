@@ -270,14 +270,13 @@ fn generate_suggestions(
         }
     }
 
-    if let Some(agent_stats) = by_tool.get("Agent") {
-        if agent_stats.call_count > 5 {
+    if let Some(agent_stats) = by_tool.get("Agent")
+        && agent_stats.call_count > 5 {
             suggestions.push(format!(
                 "{} subagent calls. Each duplicates full context. Use Grep/Glob directly for simple searches.",
                 agent_stats.call_count
             ));
         }
-    }
 
     let writes = by_tool.get("Write").map(|s| s.call_count).unwrap_or(0);
     let edits = by_tool.get("Edit").map(|s| s.call_count).unwrap_or(0);

@@ -53,8 +53,8 @@ pub fn parse_session(path: &Path) -> Option<SessionSummary> {
         };
 
         // Track timestamps
-        if let Some(ts_str) = &entry.timestamp {
-            if let Ok(ts) = ts_str.parse::<DateTime<Utc>>() {
+        if let Some(ts_str) = &entry.timestamp
+            && let Ok(ts) = ts_str.parse::<DateTime<Utc>>() {
                 if start_time.is_none() || ts < start_time.unwrap() {
                     start_time = Some(ts);
                 }
@@ -62,13 +62,11 @@ pub fn parse_session(path: &Path) -> Option<SessionSummary> {
                     end_time = Some(ts);
                 }
             }
-        }
 
-        if let Some(cwd) = &entry.cwd {
-            if project.is_empty() {
+        if let Some(cwd) = &entry.cwd
+            && project.is_empty() {
                 project = simplify_path(cwd);
             }
-        }
 
         if entry.entry_type.as_deref() != Some("assistant") {
             continue;
@@ -79,11 +77,10 @@ pub fn parse_session(path: &Path) -> Option<SessionSummary> {
             None => continue,
         };
 
-        if let Some(m) = &msg.model {
-            if model.is_empty() {
+        if let Some(m) = &msg.model
+            && model.is_empty() {
                 model = m.clone();
             }
-        }
 
         // Track tools per request
         let req_id = entry.request_id.clone().unwrap_or_default();
@@ -102,8 +99,8 @@ pub fn parse_session(path: &Path) -> Option<SessionSummary> {
         // Collect tool names from content
         if let Some(contents) = &msg.content {
             for content in contents {
-                if content.content_type.as_deref() == Some("tool_use") {
-                    if let Some(tool_name) = &content.name {
+                if content.content_type.as_deref() == Some("tool_use")
+                    && let Some(tool_name) = &content.name {
                         current_request_tools.push(tool_name.clone());
                         // Estimate output tokens
                         if let Some(input) = &content.input {
@@ -111,13 +108,12 @@ pub fn parse_session(path: &Path) -> Option<SessionSummary> {
                             stats.estimated_output_tokens += (input.to_string().len() as u64) / 4;
                         }
                     }
-                }
             }
         }
 
         // Dedup usage by (request_id, uuid) — last write wins
-        if let Some(usage) = &msg.usage {
-            if usage.output_tokens.unwrap_or(0) > 0 || usage.input_tokens.unwrap_or(0) > 0 {
+        if let Some(usage) = &msg.usage
+            && (usage.output_tokens.unwrap_or(0) > 0 || usage.input_tokens.unwrap_or(0) > 0) {
                 let dedup_key = format!(
                     "{}:{}",
                     entry.request_id.as_deref().unwrap_or(""),
@@ -136,7 +132,6 @@ pub fn parse_session(path: &Path) -> Option<SessionSummary> {
                     },
                 );
             }
-        }
 
         turn_count += 1;
     }
@@ -148,11 +143,10 @@ pub fn parse_session(path: &Path) -> Option<SessionSummary> {
     }
 
     // Aggregate deduped usage and build turns
-    let mut turn_num: u32 = 0;
     let mut sorted_entries: Vec<_> = seen.into_iter().collect();
     sorted_entries.sort_by_key(|(_, e)| e.timestamp);
 
-    for (_, entry) in sorted_entries {
+    for (i, (_, entry)) in sorted_entries.into_iter().enumerate() {
         let u = &entry.usage;
         let inp = u.input_tokens.unwrap_or(0);
         let out = u.output_tokens.unwrap_or(0);
@@ -164,9 +158,8 @@ pub fn parse_session(path: &Path) -> Option<SessionSummary> {
         total_cache_create += cc;
         total_cache_read += cr;
 
-        turn_num += 1;
         turns.push(TurnInfo {
-            turn_number: turn_num,
+            turn_number: (i + 1) as u32,
             timestamp: entry.timestamp,
             input_tokens: inp,
             output_tokens: out,
@@ -214,8 +207,8 @@ pub fn discover_sessions() -> Vec<std::path::PathBuf> {
     let mut files = vec![];
     if let Ok(entries) = std::fs::read_dir(&claude_dir) {
         for entry in entries.flatten() {
-            if entry.file_type().map(|t| t.is_dir()).unwrap_or(false) {
-                if let Ok(sub_entries) = std::fs::read_dir(entry.path()) {
+            if entry.file_type().map(|t| t.is_dir()).unwrap_or(false)
+                && let Ok(sub_entries) = std::fs::read_dir(entry.path()) {
                     for sub in sub_entries.flatten() {
                         let path = sub.path();
                         if path.extension().and_then(|e| e.to_str()) == Some("jsonl") {
@@ -223,7 +216,6 @@ pub fn discover_sessions() -> Vec<std::path::PathBuf> {
                         }
                     }
                 }
-            }
         }
     }
 
@@ -255,12 +247,10 @@ fn calculate_cost(
 }
 
 fn simplify_path(path: &str) -> String {
-    if let Some(home) = dirs::home_dir() {
-        if let Some(home_str) = home.to_str() {
-            if path.starts_with(home_str) {
+    if let Some(home) = dirs::home_dir()
+        && let Some(home_str) = home.to_str()
+            && path.starts_with(home_str) {
                 return format!("~{}", &path[home_str.len()..]);
             }
-        }
-    }
     path.to_string()
 }

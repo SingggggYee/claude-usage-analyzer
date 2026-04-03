@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct JournalEntry {
     #[serde(rename = "type")]
     pub entry_type: Option<String>,
@@ -19,6 +20,7 @@ pub struct JournalEntry {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct Message {
     pub model: Option<String>,
     pub role: Option<String>,
@@ -28,6 +30,7 @@ pub struct Message {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct Content {
     #[serde(rename = "type")]
     pub content_type: Option<String>,
