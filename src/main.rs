@@ -14,6 +14,10 @@ use clap::{Parser, Subcommand};
 struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,
+
+    /// Output as JSON instead of formatted text
+    #[arg(long, global = true)]
+    json: bool,
 }
 
 #[derive(Subcommand)]
@@ -79,12 +83,23 @@ fn main() {
             };
 
             let report = analyzer::analyze(filtered);
-            reporter::print_report(&report);
+
+            if cli.json {
+                println!("{}", serde_json::to_string_pretty(&report).unwrap());
+            } else {
+                reporter::print_report(&report);
+            }
         }
         Some(Commands::Session { id }) => {
             let found = sessions.iter().find(|s| s.session_id.starts_with(&id));
             match found {
-                Some(session) => reporter::print_session_detail(session),
+                Some(session) => {
+                    if cli.json {
+                        println!("{}", serde_json::to_string_pretty(session).unwrap());
+                    } else {
+                        reporter::print_session_detail(session);
+                    }
+                }
                 None => {
                     eprintln!("Session not found: {}", id);
                     std::process::exit(1);
@@ -108,33 +123,44 @@ fn main() {
                 .take(top)
                 .collect();
 
-            println!();
-            println!("{}", colored::Colorize::bold("  Top Sessions by Cost"));
-            println!();
-            for (i, s) in filtered.iter().enumerate() {
-                let dur = s
-                    .duration_secs()
-                    .map(|d| format!("{}m", d / 60))
-                    .unwrap_or_else(|| "?".to_string());
-                println!(
-                    "  {:>3}. ${:>7.4}  {:>10} tokens  {:>5}  {:>3} turns  {}  {}",
-                    i + 1,
-                    s.cost_usd,
-                    format_tokens(s.total_tokens()),
-                    dur,
-                    s.turn_count,
-                    s.model,
-                    colored::Colorize::dimmed(s.project.as_str()),
-                );
+            if cli.json {
+                println!("{}", serde_json::to_string_pretty(&filtered).unwrap());
+            } else {
+                println!();
+                println!("{}", colored::Colorize::bold("  Top Sessions by Cost"));
+                println!();
+                for (i, s) in filtered.iter().enumerate() {
+                    let dur = s
+                        .duration_secs()
+                        .map(|d| format!("{}m", d / 60))
+                        .unwrap_or_else(|| "?".to_string());
+                    let rate_str = s
+                        .burn_rate()
+                        .map(|r| format!("{:.0}t/m", r))
+                        .unwrap_or_else(|| "?".to_string());
+                    let peak = if s.is_peak_session() { "⚡" } else { " " };
+                    println!(
+                        "  {:>3}. {} ${:>7.4}  {:>8}  {:>5}  {:>3} turns  {:>8}  {}  {}",
+                        i + 1,
+                        peak,
+                        s.cost_usd,
+                        format_tokens(s.total_tokens()),
+                        dur,
+                        s.turn_count,
+                        rate_str,
+                        s.model,
+                        colored::Colorize::dimmed(s.project.as_str()),
+                    );
+                }
+                println!();
             }
-            println!();
         }
     }
 }
 
 fn format_tokens(tokens: u64) -> String {
-    if tokens >= 1_000_000 {
-        format!("{:.1}M", tokens as f64 / 1_000_000.0)
+    if tokens >= 1_000_000_000 {
+        format!("{:.1}B", tokens as f64 / 1_000_000_000.0)
     } else if tokens >= 1_000 {
         format!("{:.1}k", tokens as f64 / 1_000.0)
     } else {

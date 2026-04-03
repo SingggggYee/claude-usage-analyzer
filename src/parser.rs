@@ -6,7 +6,7 @@ use std::io::{BufRead, BufReader};
 use std::path::Path;
 
 /// Parse a single session JSONL file into a SessionSummary.
-/// Uses last-write-wins dedup on (messageId, requestId) to fix ccusage's accuracy issue.
+/// Uses last-write-wins dedup on (requestId, uuid) to fix ccusage's accuracy issue.
 pub fn parse_session(path: &Path) -> Option<SessionSummary> {
     let file = File::open(path).ok()?;
     let reader = BufReader::new(file);
@@ -27,9 +27,19 @@ pub fn parse_session(path: &Path) -> Option<SessionSummary> {
     let mut start_time: Option<DateTime<Utc>> = None;
     let mut end_time: Option<DateTime<Utc>> = None;
     let mut turn_count: u32 = 0;
+    let mut turns: Vec<TurnInfo> = Vec::new();
 
-    // Dedup: track (request_id, uuid) -> last usage seen
-    let mut seen_usage: HashMap<String, Usage> = HashMap::new();
+    // Dedup: track (request_id, uuid) -> (usage, turn_tools, timestamp)
+    struct DedupEntry {
+        usage: Usage,
+        tools: Vec<String>,
+        timestamp: Option<DateTime<Utc>>,
+    }
+    let mut seen: HashMap<String, DedupEntry> = HashMap::new();
+
+    // Track current request's tools
+    let mut current_request_tools: Vec<String> = Vec::new();
+    let mut current_request_id: Option<String> = None;
 
     for line in reader.lines() {
         let line = match line {
@@ -54,14 +64,12 @@ pub fn parse_session(path: &Path) -> Option<SessionSummary> {
             }
         }
 
-        // Track project
         if let Some(cwd) = &entry.cwd {
             if project.is_empty() {
                 project = simplify_path(cwd);
             }
         }
 
-        // Only process assistant messages
         if entry.entry_type.as_deref() != Some("assistant") {
             continue;
         }
@@ -71,10 +79,39 @@ pub fn parse_session(path: &Path) -> Option<SessionSummary> {
             None => continue,
         };
 
-        // Track model
         if let Some(m) = &msg.model {
             if model.is_empty() {
                 model = m.clone();
+            }
+        }
+
+        // Track tools per request
+        let req_id = entry.request_id.clone().unwrap_or_default();
+        if current_request_id.as_deref() != Some(&req_id) {
+            // New request — flush previous tools
+            if !current_request_tools.is_empty() {
+                for tool in &current_request_tools {
+                    let stats = tool_usage.entry(tool.clone()).or_default();
+                    stats.call_count += 1;
+                }
+            }
+            current_request_tools.clear();
+            current_request_id = Some(req_id.clone());
+        }
+
+        // Collect tool names from content
+        if let Some(contents) = &msg.content {
+            for content in contents {
+                if content.content_type.as_deref() == Some("tool_use") {
+                    if let Some(tool_name) = &content.name {
+                        current_request_tools.push(tool_name.clone());
+                        // Estimate output tokens
+                        if let Some(input) = &content.input {
+                            let stats = tool_usage.entry(tool_name.clone()).or_default();
+                            stats.estimated_output_tokens += (input.to_string().len() as u64) / 4;
+                        }
+                    }
+                }
             }
         }
 
@@ -86,44 +123,70 @@ pub fn parse_session(path: &Path) -> Option<SessionSummary> {
                     entry.request_id.as_deref().unwrap_or(""),
                     entry.uuid.as_deref().unwrap_or("")
                 );
-                seen_usage.insert(dedup_key, usage.clone());
-            }
-        }
-
-        // Track tool usage from content
-        if let Some(contents) = &msg.content {
-            for content in contents {
-                if content.content_type.as_deref() == Some("tool_use") {
-                    if let Some(tool_name) = &content.name {
-                        let stats = tool_usage.entry(tool_name.clone()).or_default();
-                        stats.call_count += 1;
-                        // Estimate output tokens for this tool call
-                        if let Some(input) = &content.input {
-                            let input_str = input.to_string();
-                            stats.estimated_output_tokens +=
-                                (input_str.len() as u64) / 4; // rough: 4 chars per token
-                        }
-                    }
-                }
+                let ts = entry
+                    .timestamp
+                    .as_deref()
+                    .and_then(|s| s.parse::<DateTime<Utc>>().ok());
+                seen.insert(
+                    dedup_key,
+                    DedupEntry {
+                        usage: usage.clone(),
+                        tools: current_request_tools.clone(),
+                        timestamp: ts,
+                    },
+                );
             }
         }
 
         turn_count += 1;
     }
 
-    // Aggregate deduped usage
-    for usage in seen_usage.values() {
-        total_input += usage.input_tokens.unwrap_or(0);
-        total_output += usage.output_tokens.unwrap_or(0);
-        total_cache_create += usage.cache_creation_input_tokens.unwrap_or(0);
-        total_cache_read += usage.cache_read_input_tokens.unwrap_or(0);
+    // Flush last request's tools
+    for tool in &current_request_tools {
+        let stats = tool_usage.entry(tool.clone()).or_default();
+        stats.call_count += 1;
+    }
+
+    // Aggregate deduped usage and build turns
+    let mut turn_num: u32 = 0;
+    let mut sorted_entries: Vec<_> = seen.into_iter().collect();
+    sorted_entries.sort_by_key(|(_, e)| e.timestamp);
+
+    for (_, entry) in sorted_entries {
+        let u = &entry.usage;
+        let inp = u.input_tokens.unwrap_or(0);
+        let out = u.output_tokens.unwrap_or(0);
+        let cc = u.cache_creation_input_tokens.unwrap_or(0);
+        let cr = u.cache_read_input_tokens.unwrap_or(0);
+
+        total_input += inp;
+        total_output += out;
+        total_cache_create += cc;
+        total_cache_read += cr;
+
+        turn_num += 1;
+        turns.push(TurnInfo {
+            turn_number: turn_num,
+            timestamp: entry.timestamp,
+            input_tokens: inp,
+            output_tokens: out,
+            cache_create: cc,
+            cache_read: cr,
+            tools_used: entry.tools,
+        });
     }
 
     if total_input == 0 && total_output == 0 {
         return None;
     }
 
-    let cost_usd = calculate_cost(&model, total_input, total_output, total_cache_create, total_cache_read);
+    let cost_usd = calculate_cost(
+        &model,
+        total_input,
+        total_output,
+        total_cache_create,
+        total_cache_read,
+    );
 
     Some(SessionSummary {
         session_id,
@@ -138,10 +201,10 @@ pub fn parse_session(path: &Path) -> Option<SessionSummary> {
         cost_usd,
         tool_usage,
         turn_count,
+        turns,
     })
 }
 
-/// Discover all session JSONL files under ~/.claude/projects/
 pub fn discover_sessions() -> Vec<std::path::PathBuf> {
     let claude_dir = match dirs::home_dir() {
         Some(h) => h.join(".claude").join("projects"),
@@ -174,16 +237,16 @@ fn calculate_cost(
     cache_create: u64,
     cache_read: u64,
 ) -> f64 {
-    // Pricing per million tokens (as of 2026-04)
-    let (input_price, output_price, cache_create_price, cache_read_price) = if model.contains("opus") {
-        (15.0, 75.0, 18.75, 1.5)
-    } else if model.contains("sonnet") {
-        (3.0, 15.0, 3.75, 0.3)
-    } else if model.contains("haiku") {
-        (0.8, 4.0, 1.0, 0.08)
-    } else {
-        (3.0, 15.0, 3.75, 0.3) // default to sonnet pricing
-    };
+    let (input_price, output_price, cache_create_price, cache_read_price) =
+        if model.contains("opus") {
+            (15.0, 75.0, 18.75, 1.5)
+        } else if model.contains("sonnet") {
+            (3.0, 15.0, 3.75, 0.3)
+        } else if model.contains("haiku") {
+            (0.8, 4.0, 1.0, 0.08)
+        } else {
+            (3.0, 15.0, 3.75, 0.3)
+        };
 
     (input as f64 / 1_000_000.0) * input_price
         + (output as f64 / 1_000_000.0) * output_price
