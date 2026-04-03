@@ -8,18 +8,13 @@ So I wrote a small tool to figure out where my Claude Code tokens actually go. R
 
 I knew I was using it a lot but not THAT much.
 
-The breakdown was interesting though. 97% of all tokens were cache reads, which is just context being re-read every single turn. That part is normal and cheap, so it's not the real problem.
+Some things it found that I wouldn't have noticed from /cost alone: 88 sessions where I went over 30 turns without using /compact, 840 subagent calls that each duplicate the full context, and 36 sessions burning tokens at 2x to 3x my normal rate.
 
-The actually controllable part was only 2.8% of total tokens. Of that, 92% was cache creation, basically my CLAUDE.md, MCP tools, and system prompt being loaded in. My Bash tool usage was 40% of all tool calls, which probably explains some of the burn rate.
-
-It also found 36 sessions that were burning tokens at 2x to 3x the normal rate. And my peak hours sessions (Mon to Fri, 5am to 11am PT) used 1.4x more tokens on average than off-peak.
-
-Most useful part was the suggestions. Turns out I had 88 sessions over 30 turns without using /compact, and 840 subagent calls that each duplicate the full context. Stuff I wouldn't have noticed just from the /cost command.
-
-I open sourced it if anyone's curious about their own numbers. It's called ccwhy, written in Rust, runs completely offline on your ~/.claude/ data.
-
-brew install SingggggYee/tap/ccwhy
-
-or grab the binary from github.com/SingggggYee/ccwhy
+I open sourced it if anyone wants to check their own numbers. It's called ccwhy, written in Rust, runs completely offline on your local ~/.claude/ data. I'll drop the link in the comments.
 
 Genuinely curious, is $6,800/month equivalent normal for heavy use? What are other people's numbers looking like?
+
+FIRST COMMENT (post immediately after):
+Link: github.com/SingggggYee/ccwhy
+
+Install: brew install SingggggYee/tap/ccwhy
