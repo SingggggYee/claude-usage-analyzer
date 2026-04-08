@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 description = "Claude Code usage debugger. Tells you why your tokens burned and what to do about it."
 license = "MIT"
-repository = "https://github.com/SingggggYee/ccwhy"
+repository = "https://github.com/SingggggYee/claude-usage-analyzer"
 keywords = ["claude-code", "token", "usage", "debugger", "optimizer"]
 categories = ["command-line-utilities", "development-tools"]
 

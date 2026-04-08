@@ -3,7 +3,7 @@ use colored::Colorize;
 
 pub fn print_report(report: &OverallReport) {
     println!();
-    println!("{}", "  ccwhy — Claude Code Usage Debugger".bold());
+    println!("{}", "  claude-usage-analyzer — Claude Code Usage Debugger".bold());
     println!(
         "{}",
         "  Why did your tokens burn? What to do about it.".dimmed()

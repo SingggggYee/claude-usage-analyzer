@@ -1,19 +1,19 @@
-# ccwhy
+# claude-usage-analyzer
 
-> ccusage tells you how much. ccwhy tells you **why**, and what to do about it.
+> ccusage tells you how much. claude-usage-analyzer tells you **why**, and what to do about it.
 
 A Claude Code usage debugger written in Rust. Parses your local session data, identifies where your tokens actually went, and gives you actionable suggestions to reduce waste.
 
 ## Example Output
 
-![ccwhy output](docs/assets/screenshot-top.png)
-![ccwhy output](docs/assets/screenshot-bottom.png)
+![output](docs/assets/screenshot-top.png)
+![output](docs/assets/screenshot-bottom.png)
 
 <details>
 <summary>Text version</summary>
 
 ```
-  ccwhy — Claude Code Usage Debugger
+  claude-usage-analyzer — Claude Code Usage Debugger
   Why did your tokens burn? What to do about it.
 
   Overview
@@ -63,25 +63,25 @@ cargo install ccwhy
 
 ### Download binary (no Rust needed)
 
-Grab the latest release from [Releases](https://github.com/SingggggYee/ccwhy/releases):
+Grab the latest release from [Releases](https://github.com/SingggggYee/claude-usage-analyzer/releases):
 
 ```bash
 # macOS Apple Silicon
-curl -L https://github.com/SingggggYee/ccwhy/releases/latest/download/ccwhy-macos-aarch64.tar.gz | tar xz
+curl -L https://github.com/SingggggYee/claude-usage-analyzer/releases/latest/download/claude-usage-analyzer-macos-aarch64.tar.gz | tar xz
 ./ccwhy
 
 # macOS Intel
-curl -L https://github.com/SingggggYee/ccwhy/releases/latest/download/ccwhy-macos-x86_64.tar.gz | tar xz
+curl -L https://github.com/SingggggYee/claude-usage-analyzer/releases/latest/download/claude-usage-analyzer-macos-x86_64.tar.gz | tar xz
 
 # Linux x86_64
-curl -L https://github.com/SingggggYee/ccwhy/releases/latest/download/ccwhy-linux-x86_64.tar.gz | tar xz
+curl -L https://github.com/SingggggYee/claude-usage-analyzer/releases/latest/download/claude-usage-analyzer-linux-x86_64.tar.gz | tar xz
 ```
 
 ### Build from source
 
 ```bash
-git clone https://github.com/SingggggYee/ccwhy
-cd ccwhy
+git clone https://github.com/SingggggYee/claude-usage-analyzer
+cd claude-usage-analyzer
 cargo build --release
 ./target/release/ccwhy
 ```
@@ -138,7 +138,7 @@ Based on your actual usage patterns:
 
 ## How Is This Different from ccusage?
 
-| | ccusage | ccwhy |
+| | ccusage | claude-usage-analyzer |
 |---|---------|-------|
 | **Question** | "How much did I spend?" | "Why did I spend it? How do I spend less?" |
 | **Output** | Token counts, cost tables | Token sinks, tool attribution, optimization suggestions |
@@ -146,7 +146,7 @@ Based on your actual usage patterns:
 | **Performance** | Node.js, can timeout on large data | Rust, streaming parser |
 | **Scope** | Observability | Optimization |
 
-ccwhy is not a replacement for ccusage. Use ccusage for daily/monthly cost tracking. Use ccwhy to understand **why** and **what to change**.
+claude-usage-analyzer is not a replacement for ccusage. Use ccusage for daily/monthly cost tracking. Use claude-usage-analyzer to understand **why** and **what to change**.
 
 ## How It Works
 
@@ -160,7 +160,7 @@ No network access. No API keys. Everything runs locally on your session data.
 
 ## Also: cclint
 
-ccwhy shows you where tokens went. **[cclint](https://github.com/SingggggYee/cclint)** shows you what to fix in your config.
+claude-usage-analyzer shows you where tokens went. **[cclint](https://github.com/SingggggYee/cclint)** shows you what to fix in your config.
 
 ```bash
 cargo install cclint && cclint

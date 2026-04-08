@@ -15,16 +15,16 @@ jobs:
         include:
           - target: x86_64-apple-darwin
             os: macos-latest
-            name: ccwhy-macos-x86_64
+            name: claude-usage-analyzer-macos-x86_64
           - target: aarch64-apple-darwin
             os: macos-latest
-            name: ccwhy-macos-aarch64
+            name: claude-usage-analyzer-macos-aarch64
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            name: ccwhy-linux-x86_64
+            name: claude-usage-analyzer-linux-x86_64
           - target: aarch64-unknown-linux-gnu
             os: ubuntu-latest
-            name: ccwhy-linux-aarch64
+            name: claude-usage-analyzer-linux-aarch64
 
     runs-on: ${{ matrix.os }}
 
