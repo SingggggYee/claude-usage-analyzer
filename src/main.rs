@@ -7,7 +7,7 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(
-    name = "ccwhy",
+    name = "claude-usage-analyzer",
     about = "Claude Code usage debugger. Why did your tokens burn?",
     version
 )]

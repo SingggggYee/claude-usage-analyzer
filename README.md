@@ -52,13 +52,13 @@ A Claude Code usage debugger written in Rust. Parses your local session data, id
 ### Homebrew (macOS)
 
 ```bash
-brew install SingggggYee/tap/ccwhy
+brew install SingggggYee/tap/claude-usage-analyzer
 ```
 
 ### Cargo (any platform with Rust)
 
 ```bash
-cargo install ccwhy
+cargo install claude-usage-analyzer
 ```
 
 ### Download binary (no Rust needed)
@@ -68,7 +68,7 @@ Grab the latest release from [Releases](https://github.com/SingggggYee/claude-us
 ```bash
 # macOS Apple Silicon
 curl -L https://github.com/SingggggYee/claude-usage-analyzer/releases/latest/download/claude-usage-analyzer-macos-aarch64.tar.gz | tar xz
-./ccwhy
+./claude-usage-analyzer
 
 # macOS Intel
 curl -L https://github.com/SingggggYee/claude-usage-analyzer/releases/latest/download/claude-usage-analyzer-macos-x86_64.tar.gz | tar xz
@@ -83,7 +83,7 @@ curl -L https://github.com/SingggggYee/claude-usage-analyzer/releases/latest/dow
 git clone https://github.com/SingggggYee/claude-usage-analyzer
 cd claude-usage-analyzer
 cargo build --release
-./target/release/ccwhy
+./target/release/claude-usage-analyzer
 ```
 
 ### Claude Code Skill (via ClawHub)
@@ -94,19 +94,19 @@ Also available as a Claude Code skill: [Claude Usage Analyzer on ClawHub](https:
 
 ```bash
 # Full report (last 30 days)
-ccwhy
+claude-usage-analyzer
 
 # Last 7 days
-ccwhy report --days 7
+claude-usage-analyzer report --days 7
 
 # All time
-ccwhy report --days 0
+claude-usage-analyzer report --days 0
 
 # Top sessions by cost
-ccwhy sessions
+claude-usage-analyzer sessions
 
 # Session detail
-ccwhy session <session-id-prefix>
+claude-usage-analyzer session <session-id-prefix>
 ```
 
 ## What It Tells You

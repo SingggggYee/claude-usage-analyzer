@@ -51,7 +51,7 @@ jobs:
       - name: Package
         run: |
           cd target/${{ matrix.target }}/release
-          tar czf ../../../${{ matrix.name }}.tar.gz ccwhy
+          tar czf ../../../${{ matrix.name }}.tar.gz claude-usage-analyzer
           cd ../../..
 
       - name: Upload artifact

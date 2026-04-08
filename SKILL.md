@@ -4,7 +4,7 @@ description: Analyze Claude Code token usage. Shows where tokens went, which pro
 config_paths:
   - ~/.claude/projects/*/*.jsonl
 requires:
-  - ccwhy
+  - claude-usage-analyzer
 ---
 
 # Claude Usage Analyzer
@@ -15,19 +15,19 @@ Analyze your Claude Code token usage by parsing local session logs.
 
 - Reads `~/.claude/projects/*/*.jsonl` (local Claude Code session logs)
 - Runs offline, no network access, no API keys, no credentials
-- Open source: https://github.com/SingggggYee/ccwhy
+- Open source: https://github.com/SingggggYee/claude-usage-analyzer
 
 ## Usage
 
-Requires the `ccwhy` CLI to be pre-installed. See https://github.com/SingggggYee/ccwhy for installation instructions.
+Requires the `claude-usage-analyzer` CLI to be pre-installed. See https://github.com/SingggggYee/claude-usage-analyzer for installation instructions.
 
 ```bash
-ccwhy
+claude-usage-analyzer
 ```
 
 More commands:
 
-- `ccwhy report --days 7` (last 7 days)
-- `ccwhy sessions` (top sessions by cost)
-- `ccwhy session <id>` (per-turn breakdown)
-- `ccwhy --json` (machine-readable output)
+- `claude-usage-analyzer report --days 7` (last 7 days)
+- `claude-usage-analyzer sessions` (top sessions by cost)
+- `claude-usage-analyzer session <id>` (per-turn breakdown)
+- `claude-usage-analyzer --json` (machine-readable output)
