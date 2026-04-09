@@ -1,5 +1,10 @@
 # claude-usage-analyzer
 
+[![GitHub stars](https://img.shields.io/github/stars/SingggggYee/claude-usage-analyzer)](https://github.com/SingggggYee/claude-usage-analyzer/stargazers)
+[![crates.io](https://img.shields.io/crates/v/claude-usage-analyzer)](https://crates.io/crates/claude-usage-analyzer)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Rust](https://img.shields.io/badge/Built_with-Rust-orange.svg)](https://www.rust-lang.org/)
+
 > ccusage tells you how much. claude-usage-analyzer tells you **why**, and what to do about it.
 
 A Claude Code usage debugger written in Rust. Parses your local session data, identifies where your tokens actually went, and gives you actionable suggestions to reduce waste.
@@ -33,8 +38,8 @@ A Claude Code usage debugger written in Rust. Parses your local session data, id
   97.2%  3.2B  Cache reads (context re-read every turn — normal, cheap at $1.5/M)
 
   Anomaly Sessions (33 sessions burning >2x average rate)
-  ⚡ 710,300 tok/min (3.9x avg)  ~/Claude Code/agent-trading
-  ⚡ 603,147 tok/min (3.3x avg)  /tmp/aca-sandbox
+  ⚡ 710,300 tok/min (3.9x avg)  ~/projects/my-app
+  ⚡ 603,147 tok/min (3.3x avg)  /tmp/sandbox
 
   Peak vs Off-Peak Hours
   Peak (Mon-Fri 5-11am PT):  42 sessions, avg 21.9M tokens/session
@@ -167,6 +172,28 @@ cargo install cclint && cclint
 ```
 
 It lints your CLAUDE.md, hooks, skills, and commands for token waste. Gives you a health score and specific fixes.
+
+## FAQ
+
+### How do I reduce Claude Code token usage?
+
+Run `claude-usage-analyzer` to identify your top token sinks. It shows exactly which tools, projects, and patterns are burning tokens, with specific suggestions like using `/compact`, switching from `Read` to `Grep`, or trimming your CLAUDE.md.
+
+### What's the difference between ccwhy and ccusage?
+
+ccusage answers "how much did I spend?" with cost tables and token counts. claude-usage-analyzer (formerly ccwhy) answers "why did I spend it?" with tool attribution, anomaly detection, and actionable optimization suggestions. They're complementary tools.
+
+### Does claude-usage-analyzer work with Claude Code on VS Code?
+
+Yes. claude-usage-analyzer reads session data from `~/.claude/projects/`, which is shared across all Claude Code clients — CLI, VS Code, and JetBrains. If you've used Claude Code, your data is already there.
+
+### How do I install claude-usage-analyzer?
+
+The fastest way is `brew install SingggggYee/tap/claude-usage-analyzer` on macOS. You can also use `cargo install claude-usage-analyzer`, or download a prebuilt binary from the [Releases](https://github.com/SingggggYee/claude-usage-analyzer/releases) page.
+
+### What does claude-usage-analyzer analyze?
+
+It parses your local Claude Code session files (JSONL) to break down token usage by project, tool, model, and time. It identifies anomaly sessions, peak/off-peak patterns, and generates optimization suggestions — all offline, no API keys needed.
 
 ## Requirements
 
