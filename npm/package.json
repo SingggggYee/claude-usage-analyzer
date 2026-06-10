@@ -1,0 +1,46 @@
+{
+  "name": "ccwhy",
+  "version": "0.1.0",
+  "description": "Claude Code usage debugger: parses your session history, shows where tokens actually went, and recommends specific ways to cut usage",
+  "keywords": [
+    "claude-code",
+    "claude",
+    "token",
+    "usage",
+    "cost",
+    "analyzer",
+    "cli",
+    "ccusage",
+    "anthropic",
+    "developer-tools"
+  ],
+  "homepage": "https://github.com/SingggggYee/ccwhy",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SingggggYee/ccwhy.git"
+  },
+  "license": "MIT",
+  "author": "SingggggYee",
+  "bin": {
+    "ccwhy": "bin/ccwhy.js"
+  },
+  "files": [
+    "bin/",
+    "install.js",
+    "README.md"
+  ],
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "os": [
+    "darwin",
+    "linux"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}
