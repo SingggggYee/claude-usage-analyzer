@@ -150,7 +150,7 @@ pub fn print_report(report: &OverallReport) {
     if !report.by_tool.is_empty() {
         println!("{}", "  By Tool".bold().underline());
         let mut tools: Vec<_> = report.by_tool.iter().collect();
-        tools.sort_by(|a, b| b.1.call_count.cmp(&a.1.call_count));
+        tools.sort_by_key(|t| std::cmp::Reverse(t.1.call_count));
         for (name, stats) in tools.iter().take(10) {
             println!(
                 "  {:>6} calls  {}",
@@ -256,7 +256,7 @@ pub fn print_session_detail(session: &SessionSummary) {
         println!();
         println!("  {}", "Tools Used".bold());
         let mut tools: Vec<_> = session.tool_usage.iter().collect();
-        tools.sort_by(|a, b| b.1.call_count.cmp(&a.1.call_count));
+        tools.sort_by_key(|t| std::cmp::Reverse(t.1.call_count));
         for (name, stats) in &tools {
             println!("    {:>4} calls  {}", stats.call_count, name);
         }

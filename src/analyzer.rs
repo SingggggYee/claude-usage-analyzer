@@ -168,7 +168,7 @@ fn identify_controllable_sinks(
         }
     }
 
-    sinks.sort_by(|a, b| b.tokens.cmp(&a.tokens));
+    sinks.sort_by_key(|s| std::cmp::Reverse(s.tokens));
     sinks
 }
 
